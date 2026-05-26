@@ -405,7 +405,7 @@ export default function Dashboard() {
     return (
         <>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-8 overflow-x-auto p-6">
+            <div className="flex h-full flex-1 flex-col gap-8 p-4 sm:p-6">
 
                 {/* Header */}
                 <div className="flex items-start justify-between">
@@ -428,7 +428,7 @@ export default function Dashboard() {
 
                 {/* Log Entry Modal */}
                 {showForm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
                         <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
 
                             {/* modal header */}
@@ -512,12 +512,12 @@ export default function Dashboard() {
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <p className="text-xs font-semibold tracking-widest text-neutral-400 uppercase dark:text-neutral-500">Activity</p>
                         <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
+                            <div className="flex overflow-x-auto rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
                                 {(['today', 'this-week', 'this-month', 'single', 'range'] as FilterMode[]).map((mode) => (
                                     <button
                                         key={mode}
                                         onClick={() => setFilterMode(mode)}
-                                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                                             filterMode === mode
                                                 ? 'bg-neutral-900 text-white shadow-sm dark:bg-white dark:text-neutral-900'
                                                 : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
@@ -584,12 +584,12 @@ export default function Dashboard() {
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <p className="text-xs font-semibold tracking-widest text-neutral-400 uppercase dark:text-neutral-500">Applications Overview</p>
                         <div className="flex flex-wrap items-center gap-2">
-                            <div className="flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
+                            <div className="flex overflow-x-auto rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
                                 {(['all', 'this-week', 'this-month', 'range'] as AppFilterMode[]).map((mode) => (
                                     <button
                                         key={mode}
                                         onClick={() => setAppFilterMode(mode)}
-                                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                                             appFilterMode === mode
                                                 ? 'bg-neutral-900 text-white shadow-sm dark:bg-white dark:text-neutral-900'
                                                 : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'

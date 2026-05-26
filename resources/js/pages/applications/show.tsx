@@ -149,7 +149,7 @@ export default function ApplicationShow() {
     return (
         <>
             <Head title={`${app.company_name} — ${app.role}`} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6">
 
                 {/* Back */}
                 <Link href="/applications" className="flex w-fit items-center gap-1.5 text-sm text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">
@@ -227,7 +227,7 @@ export default function ApplicationShow() {
                                             <p className="text-sm text-neutral-700 dark:text-neutral-300">{c.comment}</p>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-xs text-neutral-400">{fmt(c.created_at)}</span>
-                                                <div className="flex gap-3 opacity-0 transition-opacity group-hover:opacity-100">
+                                            <div className="flex gap-3">
                                                     <button
                                                         onClick={() => { setEditingId(c.id); setEditText(c.comment); }}
                                                         className="text-xs text-blue-500 hover:underline"

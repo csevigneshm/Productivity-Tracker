@@ -38,9 +38,19 @@ const apiFetch = (url: string, options: RequestInit = {}) =>
         credentials: 'same-origin',
     });
 
-import { fmt, todayStr } from '@/lib/date';
+const localToday = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+};
 
-const localToday = todayStr;
+const fmtDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+const fmtDateTime = (iso: string) =>
+    new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 const STATUS_COLORS: Record<Application['status'], string> = {
     applied:     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
@@ -146,7 +156,6 @@ function CommentsCell({ appId, comments, onRefresh }: { appId: number; comments:
 
     return (
         <div className="flex flex-col gap-2">
-            {/* input */}
             <div className="flex items-center gap-1.5">
                 <input
                     type="text"
@@ -164,17 +173,15 @@ function CommentsCell({ appId, comments, onRefresh }: { appId: number; comments:
                     <Send className="h-3 w-3" />
                 </button>
             </div>
-
-            {/* comments — newest first */}
             {comments.map((c) => (
-                <div key={c.id} className="group flex items-center justify-between gap-2">
+                <div key={c.id} className="flex items-center justify-between gap-2">
                     <div className="flex flex-col">
                         <p className="text-xs text-neutral-700 dark:text-neutral-300">{c.comment}</p>
-                        <p className="text-xs text-neutral-400">{fmt(c.created_at)}</p>
+                        <p className="text-xs text-neutral-400">{fmtDateTime(c.created_at)}</p>
                     </div>
                     <button
                         onClick={() => handleDelete(c.id)}
-                        className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100 text-rose-500 hover:text-rose-700"
+                        className="shrink-0 text-rose-400 hover:text-rose-600"
                     >
                         <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -195,7 +202,6 @@ export default function ApplicationsIndex() {
     const [saving, setSaving]             = useState(false);
     const [error, setError]               = useState('');
 
-    // filter state
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterSource, setFilterSource] = useState('all');
     const [filterType, setFilterType]     = useState('all');
@@ -263,19 +269,20 @@ export default function ApplicationsIndex() {
     return (
         <>
             <Head title="Applications" />
-            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6">
 
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Job Applications</h1>
+                        <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Job Applications</h1>
                         <p className="mt-1 text-sm text-neutral-400">{filtered.length} of {applications.length} applications</p>
                     </div>
                     <button
                         onClick={() => { setShowForm(true); setError(''); setForm({ ...emptyForm, applied_date: localToday() }); }}
-                        className="flex items-center gap-2 rounded-xl bg-neutral-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                        className="flex items-center gap-2 rounded-xl bg-neutral-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 sm:px-4 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                     >
-                        <Plus className="h-4 w-4" /> Add Application
+                        <Plus className="h-4 w-4" />
+                        <span className="hidden sm:inline">Add Application</span>
                     </button>
                 </div>
 
@@ -299,7 +306,7 @@ export default function ApplicationsIndex() {
 
                 {/* Add Form Modal */}
                 {showForm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
                         <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
                             <div className="mb-4 flex items-center justify-between">
                                 <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-50">New Application</h2>
@@ -330,7 +337,7 @@ export default function ApplicationsIndex() {
                     </div>
                 )}
 
-                {/* Table */}
+                {/* Content */}
                 {loading ? (
                     <div className="flex flex-1 items-center justify-center text-sm text-neutral-400">Loading...</div>
                 ) : filtered.length === 0 ? (
@@ -339,19 +346,50 @@ export default function ApplicationsIndex() {
                         <p className="text-sm">No applications found</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-2xl border border-neutral-200 dark:border-neutral-700">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="border-b border-neutral-200 bg-neutral-50 text-left dark:border-neutral-700 dark:bg-neutral-800/50">
-                                    {['Company', 'Role', 'Type', 'Source', 'Date', 'Status', 'Comments', 'Actions'].map((h) => (
-                                        <th key={h} className="px-4 py-3 text-xs font-semibold tracking-wide text-neutral-400 uppercase dark:text-neutral-500">{h}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filtered.map((app) => (
-                                    <>
-                                        {/* main row */}
+                    <>
+                        {/* Mobile cards */}
+                        <div className="flex flex-col gap-3 sm:hidden">
+                            {filtered.map((app) => (
+                                <div key={app.id} className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
+                                    <div className="mb-2 flex items-start justify-between gap-2">
+                                        <div className="min-w-0">
+                                            <p className="truncate font-semibold text-neutral-900 dark:text-neutral-100">{app.company_name}</p>
+                                            <p className="truncate text-sm text-neutral-500 dark:text-neutral-400">{app.role}</p>
+                                        </div>
+                                        <button onClick={() => handleDelete(app.id)} className="shrink-0 text-rose-500 hover:text-rose-700">
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                                        <Badge label={app.type} className={TYPE_COLORS[app.type]} />
+                                        <select
+                                            value={app.status}
+                                            onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                                            className={`rounded-full border-0 px-2.5 py-0.5 text-xs font-semibold capitalize focus:outline-none ${STATUS_COLORS[app.status]}`}
+                                        >
+                                            {['applied', 'shortlisted', 'interview', 'offer', 'rejected', 'withdrawn', 'ghosted'].map((s) => (
+                                                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                                            ))}
+                                        </select>
+                                        <span className="text-xs text-neutral-400">{fmtDate(app.applied_date)}</span>
+                                    </div>
+                                    <CommentsCell appId={app.id} comments={[...app.application_comments].reverse()} onRefresh={fetchApplications} />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Desktop table */}
+                        <div className="hidden overflow-x-auto rounded-2xl border border-neutral-200 dark:border-neutral-700 sm:block">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr className="border-b border-neutral-200 bg-neutral-50 text-left dark:border-neutral-700 dark:bg-neutral-800/50">
+                                        {['Company', 'Role', 'Type', 'Source', 'Date', 'Status', 'Comments', 'Actions'].map((h) => (
+                                            <th key={h} className="px-4 py-3 text-xs font-semibold tracking-wide text-neutral-400 uppercase dark:text-neutral-500">{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filtered.map((app) => (
                                         <tr
                                             key={app.id}
                                             className="border-b border-neutral-100 bg-white transition hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:bg-neutral-800/50"
@@ -370,7 +408,7 @@ export default function ApplicationsIndex() {
                                                     ))}
                                                 </select>
                                             </td>
-                                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{fmt(app.applied_date)}</td>
+                                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{fmtDate(app.applied_date)}</td>
                                             <td className="px-4 py-3">
                                                 <select
                                                     value={app.status}
@@ -386,19 +424,16 @@ export default function ApplicationsIndex() {
                                                 <CommentsCell appId={app.id} comments={[...app.application_comments].reverse()} onRefresh={fetchApplications} />
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <button
-                                                    onClick={() => handleDelete(app.id)}
-                                                    className="text-rose-500 hover:text-rose-700 transition-colors"
-                                                >
+                                                <button onClick={() => handleDelete(app.id)} className="text-rose-500 hover:text-rose-700 transition-colors">
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </td>
                                         </tr>
-                                    </>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
             </div>
         </>
