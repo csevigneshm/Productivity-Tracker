@@ -416,13 +416,6 @@ export default function Dashboard() {
                         <p className="mt-1 text-sm text-neutral-400 dark:text-neutral-500">{today}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        {/* log entry button */}
-                        <button
-                            onClick={() => { setShowForm(true); setFormDate(todayStrVal); }}
-                            className="flex items-center gap-2 rounded-xl bg-neutral-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                        >
-                            <PenLine className="h-4 w-4" /> Log Today
-                        </button>
                     </div>
                 </div>
 
@@ -510,7 +503,9 @@ export default function Dashboard() {
                 {/* Date Filter */}
                 <div>
                     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-xs font-semibold tracking-widest text-neutral-400 uppercase dark:text-neutral-500">Activity</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-xs font-semibold tracking-widest text-neutral-400 uppercase dark:text-neutral-500">Activity</p>
+                        </div>
                         <div className="flex flex-wrap items-center gap-2">
                             <div className="flex overflow-x-auto rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
                                 {(['today', 'this-week', 'this-month', 'single', 'range'] as FilterMode[]).map((mode) => (
@@ -552,7 +547,19 @@ export default function Dashboard() {
                     </div>
 
                 {/* Activity Stats + Profile Updates */}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                    <button
+                        onClick={() => { setShowForm(true); setFormDate(todayStrVal); }}
+                        className="group flex w-full items-center justify-between rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 px-5 py-4 text-left transition hover:border-neutral-400 hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-500 dark:hover:bg-neutral-800"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900 shadow-sm dark:bg-white">
+                                <PenLine className="h-4 w-4 text-white dark:text-neutral-900" />
+                            </div>
+                            <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Log Today's Activity</p>
+                        </div>
+                        <span className="text-xs font-medium text-neutral-400 transition group-hover:text-neutral-700 dark:group-hover:text-neutral-200">Tap to log →</span>
+                    </button>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                         <StatCard icon={Phone}      label="Interview Calls"  value={summary.interview_calls}      gradient="bg-blue-500" breakdown={interviewBreakdown} />
                         <StatCard icon={BookOpen}   label="Study Hours"      value={`${summary.study_hours}h`}    gradient="bg-violet-500" />
                         <StatCard icon={TrendingUp} label="LinkedIn Applied" value={summary.linkedin_applications} gradient="bg-sky-500" />

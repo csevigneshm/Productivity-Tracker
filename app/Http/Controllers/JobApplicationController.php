@@ -44,7 +44,7 @@ class JobApplicationController extends Controller
             'company_name' => 'required|string|max:255',
             'role'         => 'required|string|max:255',
             'type'         => 'required|in:government,corporate,startup',
-            'source'       => 'required|in:linkedin,naukri,indeed,referral,other',
+            'source'       => 'required|in:linkedin,naukri,indeed,referral,careers_page,other',
             'applied_date' => 'required|date',
             'status'       => 'required|in:applied,shortlisted,interview,offer,rejected,withdrawn,ghosted',
         ]);
