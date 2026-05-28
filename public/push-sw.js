@@ -6,6 +6,8 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
 });
 
+const dashboardLogUrl = () => `${self.location.origin}/dashboard?log=1`;
+
 const absoluteIcon = () => `${self.location.origin}/favicon.ico`;
 
 const buildOptions = (payload) => ({
@@ -15,22 +17,7 @@ const buildOptions = (payload) => ({
     renotify: true,
     requireInteraction: true,
     silent: false,
-    data: payload.data || { url: `${self.location.origin}/dashboard` },
-});
-
-self.addEventListener('message', (event) => {
-    if (event.data?.type !== 'show-test-notification') {
-        return;
-    }
-
-    const title = event.data.title || 'Test reminder';
-    const options = buildOptions({
-        body: event.data.body || 'This is a test push. Your reminders are working!',
-        tag: 'daily-log-reminder-test',
-        data: { url: `${self.location.origin}/dashboard` },
-    });
-
-    event.waitUntil(self.registration.showNotification(title, options));
+    data: payload.data || { url: dashboardLogUrl() },
 });
 
 self.addEventListener('push', (event) => {
@@ -38,7 +25,7 @@ self.addEventListener('push', (event) => {
         title: 'Daily log reminder',
         body: "You haven't updated today's productivity log yet.",
         tag: 'daily-log-reminder',
-        data: { url: `${self.location.origin}/dashboard` },
+        data: { url: dashboardLogUrl() },
     };
 
     const show = (payload) => {
@@ -62,14 +49,18 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
-    const targetPath = event.notification.data?.url || '/dashboard';
+    const targetPath = event.notification.data?.url || dashboardLogUrl();
     const absoluteUrl = new URL(targetPath, self.location.origin).href;
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
             for (const client of windowClients) {
-                if (client.url.startsWith(self.location.origin) && 'focus' in client) {
-                    return client.focus();
+                if (client.url.startsWith(self.location.origin)) {
+                    client.postMessage({ type: 'open-daily-log' });
+
+                    if ('focus' in client) {
+                        return client.focus();
+                    }
                 }
             }
 

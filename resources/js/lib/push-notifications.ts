@@ -204,37 +204,6 @@ const saveSubscriptionToServer = async (subscription: PushSubscription): Promise
     }
 };
 
-export const showTestNotification = async (): Promise<void> => {
-    const registration = await getServiceWorkerRegistration();
-
-    await registration.showNotification('Test reminder', {
-        body: 'This is a test push. Your reminders are working!',
-        tag: 'daily-log-reminder-test',
-        renotify: true,
-        requireInteraction: true,
-        silent: false,
-        data: { url: `${window.location.origin}/dashboard` },
-    });
-};
-
-export const syncPushSubscription = async (vapidPublicKey: string): Promise<void> => {
-    if (!isPushSupported()) {
-        throw new Error('Push notifications are not supported in this browser.');
-    }
-
-    const registration = await getServiceWorkerRegistration();
-    let subscription = await getPushSubscription(registration);
-
-    if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-        });
-    }
-
-    await saveSubscriptionToServer(subscription);
-};
-
 export const subscribeToPush = async (vapidPublicKey: string): Promise<PushSubscription> => {
     if (!isPushSupported()) {
         throw new Error('Push notifications are not supported in this browser.');

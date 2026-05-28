@@ -3,9 +3,7 @@
 namespace Tests\Feature\Settings;
 
 use App\Models\User;
-use App\Notifications\DailyLogReminderNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class ReminderSettingsTest extends TestCase
@@ -75,27 +73,4 @@ class ReminderSettingsTest extends TestCase
         ]);
     }
 
-    public function test_reminder_can_be_sent_for_testing(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->create();
-
-        $user->updatePushSubscription(
-            'https://example.com/push/abc123',
-            'test-public-key',
-            'test-auth-token',
-            'aes128gcm',
-        );
-
-        $response = $this
-            ->actingAs($user)
-            ->postJson('/api/reminder-settings/test');
-
-        $response
-            ->assertOk()
-            ->assertJson(['message' => 'Test reminder sent. Check your browser notifications.']);
-
-        Notification::assertSentTo($user, DailyLogReminderNotification::class);
-    }
 }

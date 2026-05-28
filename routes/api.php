@@ -63,5 +63,4 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy']);
 
     Route::patch('reminder-settings', [ReminderSettingsController::class, 'update']);
-    Route::post('reminder-settings/test', [ReminderSettingsController::class, 'test']);
 });

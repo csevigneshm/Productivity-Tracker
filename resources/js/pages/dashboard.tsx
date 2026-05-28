@@ -239,6 +239,36 @@ export default function Dashboard({
     const [saving, setSaving]       = useState(false);
     const [saveMsg, setSaveMsg]     = useState('');
 
+    const openDailyLogForm = () => {
+        setFormDate(todayStrVal);
+        setShowForm(true);
+    };
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.get('log') === '1') {
+            openDailyLogForm();
+            window.history.replaceState({}, '', '/dashboard');
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!('serviceWorker' in navigator)) {
+            return;
+        }
+
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data?.type === 'open-daily-log') {
+                openDailyLogForm();
+            }
+        };
+
+        navigator.serviceWorker.addEventListener('message', handleMessage);
+
+        return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
+    }, []);
+
     // aggregate logs into one summary
     const summary: DailyLog = logs.reduce((acc, log) => ({
         study_hours:           acc.study_hours           + (log.study_hours ?? 0),
@@ -556,7 +586,7 @@ export default function Dashboard({
 
                 {/* Activity Stats + Profile Updates */}
                     <button
-                        onClick={() => { setShowForm(true); setFormDate(todayStrVal); }}
+                        onClick={openDailyLogForm}
                         className="group flex w-full items-center justify-between rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 px-5 py-4 text-left transition hover:border-neutral-400 hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-neutral-500 dark:hover:bg-neutral-800"
                     >
                         <div className="flex items-center gap-3">

@@ -7,9 +7,7 @@ import {
     isPushSupported,
     isSecureContextForPush,
     requestNotificationPermission,
-    showTestNotification,
     subscribeToPush,
-    syncPushSubscription,
     unsubscribeFromPush,
 } from '@/lib/push-notifications';
 
@@ -47,8 +45,6 @@ type Props = {
 export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey }: Props) {
     const [enabled, setEnabled] = useState(initialEnabled);
     const [turningOn, setTurningOn] = useState(false);
-    const [testing, setTesting] = useState(false);
-    const [countdown, setCountdown] = useState<number | null>(null);
     const [permission, setPermission] = useState(getNotificationPermission());
 
     const refreshPermission = () => setPermission(getNotificationPermission());
@@ -141,116 +137,51 @@ export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey
         void turnOn();
     };
 
-    const handleTest = async () => {
-        setTesting(true);
-
-        try {
-            if (!vapidPublicKey) {
-                throw new Error('VAPID keys are missing. Run php artisan webpush:vapid first.');
-            }
-
-            const result = await requestNotificationPermission();
-            refreshPermission();
-
-            if (result !== 'granted') {
-                throw new Error('Notifications were not allowed.');
-            }
-
-            await syncPushSubscription(vapidPublicKey);
-
-            for (let seconds = 5; seconds >= 1; seconds -= 1) {
-                setCountdown(seconds);
-                toast.info(`Minimize Chrome now — notification in ${seconds}s…`, {
-                    id: 'push-test-countdown',
-                    duration: 1100,
-                });
-                await new Promise((resolve) => window.setTimeout(resolve, 1000));
-            }
-
-            setCountdown(null);
-            toast.dismiss('push-test-countdown');
-
-            await showTestNotification();
-
-            void fetch('/api/reminder-settings/test', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken(),
-                },
-                credentials: 'same-origin',
-            }).catch(() => undefined);
-
-            toast.success('Notification sent! Check the top-right of your screen or Notification Center.');
-        } catch (testError) {
-            toast.error(
-                testError instanceof Error ? testError.message : 'Failed to send test reminder.',
-            );
-        } finally {
-            setCountdown(null);
-            setTesting(false);
-        }
-    };
-
     const notificationsBlocked = permission === 'denied';
 
     return (
         <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-2">
-                <div
-                    className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
-                    title="Hourly push reminders from 6 PM to 11:59 PM if today's log isn't saved"
+            <div
+                className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
+                title="Hourly push reminders from 6 PM to 11:59 PM if today's log isn't saved"
+            >
+                <Bell className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+
+                <span className="hidden text-xs font-medium text-neutral-600 sm:inline dark:text-neutral-300">
+                    Reminders
+                </span>
+
+                <button
+                    type="button"
+                    role="switch"
+                    aria-checked={enabled}
+                    aria-label={enabled ? 'Turn reminders off' : 'Turn reminders on'}
+                    onClick={handleSwitchClick}
+                    className={cn(
+                        'relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200',
+                        turningOn && 'opacity-70',
+                        enabled
+                            ? 'border-neutral-900 bg-neutral-900 dark:border-white dark:bg-white'
+                            : 'border-neutral-300 bg-neutral-200 dark:border-neutral-600 dark:bg-neutral-700',
+                    )}
                 >
-                    <Bell className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
-
-                    <span className="hidden text-xs font-medium text-neutral-600 sm:inline dark:text-neutral-300">
-                        Reminders
-                    </span>
-
-                    <button
-                        type="button"
-                        role="switch"
-                        aria-checked={enabled}
-                        aria-label={enabled ? 'Turn reminders off' : 'Turn reminders on'}
-                        onClick={handleSwitchClick}
+                    <span
                         className={cn(
-                            'relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200',
-                            turningOn && 'opacity-70',
+                            'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200',
                             enabled
-                                ? 'border-neutral-900 bg-neutral-900 dark:border-white dark:bg-white'
-                                : 'border-neutral-300 bg-neutral-200 dark:border-neutral-600 dark:bg-neutral-700',
+                                ? 'translate-x-6 dark:bg-neutral-900'
+                                : 'translate-x-1 dark:bg-neutral-100',
                         )}
-                    >
-                        <span
-                            className={cn(
-                                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200',
-                                enabled
-                                    ? 'translate-x-6 dark:bg-neutral-900'
-                                    : 'translate-x-1 dark:bg-neutral-100',
-                            )}
-                        />
-                    </button>
+                    />
+                </button>
 
-                    <button
-                        type="button"
-                        onClick={handleSwitchClick}
-                        className="min-w-[24px] cursor-pointer text-xs font-semibold text-neutral-600 hover:underline dark:text-neutral-300"
-                    >
-                        {enabled ? 'On' : turningOn ? '...' : 'Off'}
-                    </button>
-                </div>
-
-                {enabled && (
-                    <button
-                        type="button"
-                        onClick={handleTest}
-                        disabled={testing}
-                        className="cursor-pointer rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-semibold text-neutral-600 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                    >
-                        {testing ? (countdown !== null ? `${countdown}s…` : 'Sending...') : 'Test'}
-                    </button>
-                )}
+                <button
+                    type="button"
+                    onClick={handleSwitchClick}
+                    className="min-w-[24px] cursor-pointer text-xs font-semibold text-neutral-600 hover:underline dark:text-neutral-300"
+                >
+                    {enabled ? 'On' : turningOn ? '...' : 'Off'}
+                </button>
             </div>
 
             {notificationsBlocked ? (
