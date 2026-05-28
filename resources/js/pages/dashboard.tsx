@@ -395,14 +395,16 @@ export default function Dashboard({
     // aggregate logs into one summary
     const summary: DailyLog = logs.reduce(
         (acc, log) => ({
-            study_hours: acc.study_hours + (log.study_hours ?? 0),
-            interview_calls: acc.interview_calls + (log.interview_calls ?? 0),
+            study_hours: acc.study_hours + Number(log.study_hours ?? 0),
+            interview_calls:
+                acc.interview_calls + Number(log.interview_calls ?? 0),
             linkedin_applications:
-                acc.linkedin_applications + (log.linkedin_applications ?? 0),
+                acc.linkedin_applications +
+                Number(log.linkedin_applications ?? 0),
             naukri_applications:
-                acc.naukri_applications + (log.naukri_applications ?? 0),
+                acc.naukri_applications + Number(log.naukri_applications ?? 0),
             indeed_applications:
-                acc.indeed_applications + (log.indeed_applications ?? 0),
+                acc.indeed_applications + Number(log.indeed_applications ?? 0),
             linkedin_updated: acc.linkedin_updated || log.linkedin_updated,
             naukri_updated: acc.naukri_updated || log.naukri_updated,
             github_updated: acc.github_updated || log.github_updated,
@@ -926,7 +928,7 @@ export default function Dashboard({
                         <StatCard
                             icon={BookOpen}
                             label="Study Hours"
-                            value={`${summary.study_hours}h`}
+                            value={`${Number(summary.study_hours) || 0}h`}
                             gradient="bg-violet-500"
                         />
                         <StatCard
