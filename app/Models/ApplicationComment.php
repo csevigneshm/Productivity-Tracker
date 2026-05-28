@@ -35,6 +35,7 @@ class ApplicationComment extends Model
     {
         $record = static::findOrFail($id);
         $record->update(['comment' => $comment]);
+
         return $record;
     }
 

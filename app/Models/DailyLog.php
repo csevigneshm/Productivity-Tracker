@@ -14,11 +14,11 @@ class DailyLog extends Model
     ];
 
     protected $casts = [
-        'date'             => 'date:Y-m-d',
+        'date' => 'date:Y-m-d',
         'linkedin_updated' => 'boolean',
-        'naukri_updated'   => 'boolean',
-        'github_updated'   => 'boolean',
-        'indeed_updated'   => 'boolean',
+        'naukri_updated' => 'boolean',
+        'github_updated' => 'boolean',
+        'indeed_updated' => 'boolean',
     ];
 
     public function user(): BelongsTo

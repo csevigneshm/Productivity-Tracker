@@ -8,7 +8,8 @@ type PushSubscriptionPayload = {
 };
 
 const csrfToken = (): string =>
-    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
+    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
+        ?.content ?? '';
 
 const apiFetch = (url: string, options: RequestInit = {}): Promise<Response> =>
     fetch(url, {
@@ -22,9 +23,13 @@ const apiFetch = (url: string, options: RequestInit = {}): Promise<Response> =>
         credentials: 'same-origin',
     });
 
-const urlBase64ToUint8Array = (base64String: string): Uint8Array<ArrayBuffer> => {
+const urlBase64ToUint8Array = (
+    base64String: string,
+): Uint8Array<ArrayBuffer> => {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
     const rawData = window.atob(base64);
 
     const outputArray = new Uint8Array(rawData.length);
@@ -52,11 +57,17 @@ const formatPushError = (error: unknown): string => {
     if (error instanceof DOMException) {
         const message = error.message.toLowerCase();
 
-        if (message.includes('retrieving push subscription') || message.includes('push subscription')) {
+        if (
+            message.includes('retrieving push subscription') ||
+            message.includes('push subscription')
+        ) {
             return 'Could not connect to browser push service. Refresh the page, then turn reminders on again.';
         }
 
-        if (message.includes('invalid key') || message.includes('applicationserverkey')) {
+        if (
+            message.includes('invalid key') ||
+            message.includes('applicationserverkey')
+        ) {
             return 'Push setup is invalid. Run php artisan webpush:vapid and refresh the page.';
         }
 
@@ -70,7 +81,9 @@ const formatPushError = (error: unknown): string => {
     return 'Unable to set up push notifications.';
 };
 
-const subscriptionToPayload = (subscription: PushSubscription): PushSubscriptionPayload => {
+const subscriptionToPayload = (
+    subscription: PushSubscription,
+): PushSubscriptionPayload => {
     const json = subscription.toJSON();
 
     if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
@@ -84,12 +97,14 @@ const subscriptionToPayload = (subscription: PushSubscription): PushSubscription
             auth: json.keys.auth,
         },
         contentEncoding:
-            (json as PushSubscriptionJSON & { contentEncoding?: string }).contentEncoding ??
-            getContentEncoding(),
+            (json as PushSubscriptionJSON & { contentEncoding?: string })
+                .contentEncoding ?? getContentEncoding(),
     };
 };
 
-const waitForActiveWorker = async (registration: ServiceWorkerRegistration): Promise<void> => {
+const waitForActiveWorker = async (
+    registration: ServiceWorkerRegistration,
+): Promise<void> => {
     if (registration.active) {
         return;
     }
@@ -98,6 +113,7 @@ const waitForActiveWorker = async (registration: ServiceWorkerRegistration): Pro
 
     if (!worker) {
         await navigator.serviceWorker.ready;
+
         return;
     }
 
@@ -107,7 +123,11 @@ const waitForActiveWorker = async (registration: ServiceWorkerRegistration): Pro
 
     await new Promise<void>((resolve, reject) => {
         const timeout = window.setTimeout(() => {
-            reject(new Error('Service worker timed out. Refresh the page and try again.'));
+            reject(
+                new Error(
+                    'Service worker timed out. Refresh the page and try again.',
+                ),
+            );
         }, 15000);
 
         worker.addEventListener('statechange', () => {
@@ -120,7 +140,9 @@ const waitForActiveWorker = async (registration: ServiceWorkerRegistration): Pro
 };
 
 export const isPushSupported = (): boolean =>
-    'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    'serviceWorker' in navigator &&
+    'PushManager' in window &&
+    'Notification' in window;
 
 export const isSecureContextForPush = (): boolean => {
     if (window.isSecureContext) {
@@ -140,48 +162,57 @@ export const getNotificationPermission = (): NotificationPermission => {
     return Notification.permission;
 };
 
-export const requestNotificationPermission = async (): Promise<NotificationPermission> => {
-    if (!('Notification' in window)) {
-        return 'denied';
-    }
+export const requestNotificationPermission =
+    async (): Promise<NotificationPermission> => {
+        if (!('Notification' in window)) {
+            return 'denied';
+        }
 
-    if (Notification.permission === 'granted') {
-        return 'granted';
-    }
+        if (Notification.permission === 'granted') {
+            return 'granted';
+        }
 
-    if (Notification.permission === 'denied') {
-        throw new Error(
-            'Notifications are blocked. Click the lock icon in the address bar → Site settings → Notifications → Allow, then refresh.',
-        );
-    }
+        if (Notification.permission === 'denied') {
+            throw new Error(
+                'Notifications are blocked. Click the lock icon in the address bar → Site settings → Notifications → Allow, then refresh.',
+            );
+        }
 
-    return Notification.requestPermission();
-};
+        return Notification.requestPermission();
+    };
 
-export const getServiceWorkerRegistration = async (): Promise<ServiceWorkerRegistration> => {
-    let registration = await navigator.serviceWorker.getRegistration('/');
+export const getServiceWorkerRegistration =
+    async (): Promise<ServiceWorkerRegistration> => {
+        let registration = await navigator.serviceWorker.getRegistration('/');
 
-    if (!registration) {
-        registration = await navigator.serviceWorker.register('/push-sw.js', {
-            scope: '/',
-            updateViaCache: 'none',
-        });
-    }
+        if (!registration) {
+            registration = await navigator.serviceWorker.register(
+                '/push-sw.js',
+                {
+                    scope: '/',
+                    updateViaCache: 'none',
+                },
+            );
+        }
 
-    await registration.update();
-    await waitForActiveWorker(registration);
-    await navigator.serviceWorker.ready;
+        await registration.update();
+        await waitForActiveWorker(registration);
+        await navigator.serviceWorker.ready;
 
-    if (!registration.active) {
-        throw new Error('Service worker is not active. Refresh the page and try again.');
-    }
+        if (!registration.active) {
+            throw new Error(
+                'Service worker is not active. Refresh the page and try again.',
+            );
+        }
 
-    if (!registration.pushManager) {
-        throw new Error('Push manager is unavailable for this service worker.');
-    }
+        if (!registration.pushManager) {
+            throw new Error(
+                'Push manager is unavailable for this service worker.',
+            );
+        }
 
-    return registration;
-};
+        return registration;
+    };
 
 const getPushSubscription = async (
     registration: ServiceWorkerRegistration,
@@ -193,7 +224,9 @@ const getPushSubscription = async (
     }
 };
 
-const saveSubscriptionToServer = async (subscription: PushSubscription): Promise<void> => {
+const saveSubscriptionToServer = async (
+    subscription: PushSubscription,
+): Promise<void> => {
     const response = await apiFetch('/api/push-subscriptions', {
         method: 'POST',
         body: JSON.stringify(subscriptionToPayload(subscription)),
@@ -204,13 +237,19 @@ const saveSubscriptionToServer = async (subscription: PushSubscription): Promise
     }
 };
 
-export const subscribeToPush = async (vapidPublicKey: string): Promise<PushSubscription> => {
+export const subscribeToPush = async (
+    vapidPublicKey: string,
+): Promise<PushSubscription> => {
     if (!isPushSupported()) {
-        throw new Error('Push notifications are not supported in this browser.');
+        throw new Error(
+            'Push notifications are not supported in this browser.',
+        );
     }
 
     if (!isSecureContextForPush()) {
-        throw new Error('Push needs HTTPS (or localhost). Open the site with https:// or http://localhost.');
+        throw new Error(
+            'Push needs HTTPS (or localhost). Open the site with https:// or http://localhost.',
+        );
     }
 
     if (!vapidPublicKey) {
@@ -230,6 +269,7 @@ export const subscribeToPush = async (vapidPublicKey: string): Promise<PushSubsc
         if (existing) {
             try {
                 await saveSubscriptionToServer(existing);
+
                 return existing;
             } catch {
                 try {

@@ -27,7 +27,7 @@ class DailyLogController extends Controller
     {
         $validated = $request->validate([
             'from' => 'required|date',
-            'to'   => 'required|date|after_or_equal:from',
+            'to' => 'required|date|after_or_equal:from',
         ]);
 
         return response()->json(DailyLog::getLogsByDateRange(auth()->id(), $validated['from'], $validated['to']));
@@ -36,11 +36,11 @@ class DailyLogController extends Controller
     public function saveTodayLog(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'study_hours'           => 'sometimes|numeric|min:0|max:24',
-            'interview_calls'       => 'sometimes|integer|min:0',
+            'study_hours' => 'sometimes|numeric|min:0|max:24',
+            'interview_calls' => 'sometimes|integer|min:0',
             'linkedin_applications' => 'sometimes|integer|min:0',
-            'naukri_applications'   => 'sometimes|integer|min:0',
-            'indeed_applications'   => 'sometimes|integer|min:0',
+            'naukri_applications' => 'sometimes|integer|min:0',
+            'indeed_applications' => 'sometimes|integer|min:0',
         ]);
 
         return response()->json(DailyLog::saveTodayLog(auth()->id(), $validated));
@@ -49,16 +49,16 @@ class DailyLogController extends Controller
     public function saveLogByDate(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'date'                  => 'required|date|before_or_equal:today',
-            'study_hours'           => 'sometimes|numeric|min:0|max:24',
-            'interview_calls'       => 'sometimes|integer|min:0',
+            'date' => 'required|date|before_or_equal:today',
+            'study_hours' => 'sometimes|numeric|min:0|max:24',
+            'interview_calls' => 'sometimes|integer|min:0',
             'linkedin_applications' => 'sometimes|integer|min:0',
-            'naukri_applications'   => 'sometimes|integer|min:0',
-            'indeed_applications'   => 'sometimes|integer|min:0',
-            'linkedin_updated'      => 'sometimes|boolean',
-            'naukri_updated'        => 'sometimes|boolean',
-            'github_updated'        => 'sometimes|boolean',
-            'indeed_updated'        => 'sometimes|boolean',
+            'naukri_applications' => 'sometimes|integer|min:0',
+            'indeed_applications' => 'sometimes|integer|min:0',
+            'linkedin_updated' => 'sometimes|boolean',
+            'naukri_updated' => 'sometimes|boolean',
+            'github_updated' => 'sometimes|boolean',
+            'indeed_updated' => 'sometimes|boolean',
         ]);
 
         $date = $validated['date'];
@@ -71,9 +71,9 @@ class DailyLogController extends Controller
     {
         $validated = $request->validate([
             'linkedin_updated' => 'sometimes|boolean',
-            'naukri_updated'   => 'sometimes|boolean',
-            'github_updated'   => 'sometimes|boolean',
-            'indeed_updated'   => 'sometimes|boolean',
+            'naukri_updated' => 'sometimes|boolean',
+            'github_updated' => 'sometimes|boolean',
+            'indeed_updated' => 'sometimes|boolean',
         ]);
 
         return response()->json(DailyLog::saveProfileChecks(auth()->id(), $validated));

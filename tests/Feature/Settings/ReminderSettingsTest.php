@@ -72,5 +72,4 @@ class ReminderSettingsTest extends TestCase
             'endpoint' => 'https://example.com/push/abc123',
         ]);
     }
-
 }

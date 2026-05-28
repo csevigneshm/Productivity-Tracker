@@ -42,11 +42,11 @@ class JobApplicationController extends Controller
     {
         $validated = $request->validate([
             'company_name' => 'required|string|max:255',
-            'role'         => 'required|string|max:255',
-            'type'         => 'required|in:government,corporate,startup',
-            'source'       => 'required|in:linkedin,naukri,indeed,referral,careers_page,other',
+            'role' => 'required|string|max:255',
+            'type' => 'required|in:government,corporate,startup',
+            'source' => 'required|in:linkedin,naukri,indeed,referral,careers_page,other',
             'applied_date' => 'required|date',
-            'status'       => 'required|in:applied,shortlisted,interview,offer,rejected,withdrawn,ghosted',
+            'status' => 'required|in:applied,shortlisted,interview,offer,rejected,withdrawn,ghosted',
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -58,11 +58,11 @@ class JobApplicationController extends Controller
     {
         $validated = $request->validate([
             'company_name' => 'sometimes|string|max:255',
-            'role'         => 'sometimes|string|max:255',
-            'type'         => 'sometimes|in:government,corporate,startup',
-            'source'       => 'sometimes|in:linkedin,naukri,indeed,referral,other',
+            'role' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:government,corporate,startup',
+            'source' => 'sometimes|in:linkedin,naukri,indeed,referral,other',
             'applied_date' => 'sometimes|date',
-            'status'       => 'sometimes|in:applied,shortlisted,interview,offer,rejected,withdrawn,ghosted',
+            'status' => 'sometimes|in:applied,shortlisted,interview,offer,rejected,withdrawn,ghosted',
         ]);
 
         return response()->json(JobApplication::updateApplication($id, $validated));

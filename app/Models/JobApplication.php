@@ -61,6 +61,7 @@ class JobApplication extends Model
     {
         $application = static::findOrFail($id);
         $application->update($data);
+
         return $application;
     }
 
@@ -68,6 +69,7 @@ class JobApplication extends Model
     {
         $application = static::findOrFail($id);
         $application->update(['status' => $status]);
+
         return $application;
     }
 

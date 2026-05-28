@@ -1,7 +1,6 @@
 import { Bell } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import {
     getNotificationPermission,
     isPushSupported,
@@ -10,9 +9,11 @@ import {
     subscribeToPush,
     unsubscribeFromPush,
 } from '@/lib/push-notifications';
+import { cn } from '@/lib/utils';
 
 const csrfToken = (): string =>
-    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
+    (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)
+        ?.content ?? '';
 
 const updateReminderSetting = async (enabled: boolean): Promise<boolean> => {
     const response = await fetch('/api/reminder-settings', {
@@ -30,7 +31,9 @@ const updateReminderSetting = async (enabled: boolean): Promise<boolean> => {
 
     if (!response.ok) {
         throw new Error(
-            typeof data.message === 'string' ? data.message : 'Failed to update reminder settings.',
+            typeof data.message === 'string'
+                ? data.message
+                : 'Failed to update reminder settings.',
         );
     }
 
@@ -42,7 +45,10 @@ type Props = {
     vapidPublicKey: string | null;
 };
 
-export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey }: Props) {
+export default function ReminderToggle({
+    enabled: initialEnabled,
+    vapidPublicKey,
+}: Props) {
     const [enabled, setEnabled] = useState(initialEnabled);
     const [turningOn, setTurningOn] = useState(false);
     const [permission, setPermission] = useState(getNotificationPermission());
@@ -77,12 +83,18 @@ export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey
         }
 
         if (!isPushSupported() || !isSecureContextForPush()) {
-            toast.error('Push needs HTTPS (or localhost). Open the site with https:// or http://localhost.');
+            toast.error(
+                'Push needs HTTPS (or localhost). Open the site with https:// or http://localhost.',
+            );
+
             return;
         }
 
         if (!vapidPublicKey) {
-            toast.error('VAPID keys are missing. Run php artisan webpush:vapid first.');
+            toast.error(
+                'VAPID keys are missing. Run php artisan webpush:vapid first.',
+            );
+
             return;
         }
 
@@ -114,13 +126,19 @@ export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey
             refreshPermission();
 
             if (result === 'granted') {
-                toast.success('Notifications allowed. You can turn reminders on now.');
+                toast.success(
+                    'Notifications allowed. You can turn reminders on now.',
+                );
             } else {
                 toast.error('Notifications were not allowed.');
             }
         } catch (error) {
             refreshPermission();
-            toast.error(error instanceof Error ? error.message : 'Could not request notifications.');
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : 'Could not request notifications.',
+            );
         }
     };
 
@@ -131,6 +149,7 @@ export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey
 
         if (enabled) {
             void turnOff();
+
             return;
         }
 
@@ -155,7 +174,9 @@ export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey
                     type="button"
                     role="switch"
                     aria-checked={enabled}
-                    aria-label={enabled ? 'Turn reminders off' : 'Turn reminders on'}
+                    aria-label={
+                        enabled ? 'Turn reminders off' : 'Turn reminders on'
+                    }
                     onClick={handleSwitchClick}
                     className={cn(
                         'relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200',
@@ -186,7 +207,8 @@ export default function ReminderToggle({ enabled: initialEnabled, vapidPublicKey
 
             {notificationsBlocked ? (
                 <p className="max-w-xs text-right text-xs text-rose-600 dark:text-rose-400">
-                    Blocked in Firefox → lock icon → Permissions → Notifications → Allow → refresh
+                    Blocked in Firefox → lock icon → Permissions → Notifications
+                    → Allow → refresh
                 </p>
             ) : permission === 'default' ? (
                 <button
