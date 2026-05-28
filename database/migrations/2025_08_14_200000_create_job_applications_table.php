@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('company_name');
             $table->string('role');
             $table->enum('type', ['government', 'corporate', 'startup']);
-            $table->enum('source', ['linkedin', 'naukri', 'indeed', 'referral', 'other']);
+            $table->enum('source', ['linkedin', 'naukri', 'indeed', 'referral', 'careers_page', 'other']);
             $table->date('applied_date');
             $table->enum('status', ['applied', 'shortlisted', 'interview', 'offer', 'rejected', 'withdrawn', 'ghosted'])->default('applied');
             $table->timestamps();
