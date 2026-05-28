@@ -20,11 +20,12 @@ import ReminderToggle from '@/components/reminder-toggle';
 import {
     fmtDisplay,
     todayStr,
+    toDateStr,
     weekStart,
     weekEnd,
     monthStart,
     monthEnd,
-    fmt as dateObjToStr,
+    dateToStr as dateObjToStr,
 } from '@/lib/date';
 import { dashboard } from '@/routes';
 
@@ -591,7 +592,7 @@ export default function Dashboard({
         const updatedDates = new Set(
             logs
                 .filter((l: any) => l[key])
-                .map((l: any) => l.date?.split('T')[0] ?? l.date),
+                .map((l: any) => toDateStr(l.date)),
         );
         const missedDates = pastDatesInRange.filter(
             (d) => !updatedDates.has(d),
@@ -616,7 +617,7 @@ export default function Dashboard({
         ? logs
               .filter((l: any) => (l.interview_calls ?? 0) > 0)
               .map((l: any) => ({
-                  date: l.date?.split('T')[0] ?? l.date,
+                  date: toDateStr(l.date),
                   count: l.interview_calls,
               }))
               .sort((a, b) => a.date.localeCompare(b.date))
@@ -644,7 +645,11 @@ export default function Dashboard({
                 <div className="flex items-start justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-                            {greeting}, {auth.user?.name?.split(' ')[0]} 👋
+                            {greeting},{' '}
+                            {typeof auth.user?.name === 'string'
+                                ? auth.user.name.split(' ')[0]
+                                : 'there'}{' '}
+                            👋
                         </h1>
                         <p className="mt-1 text-sm text-neutral-400 dark:text-neutral-500">
                             {today}
