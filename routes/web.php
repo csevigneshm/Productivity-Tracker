@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\TestController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -9,11 +8,15 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
+
     return redirect()->route('login');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', fn () => Inertia::render('dashboard', [
+        'remindersEnabled' => (bool) auth()->user()->daily_log_reminders_enabled,
+        'vapidPublicKey' => config('webpush.vapid.public_key'),
+    ]))->name('dashboard');
     Route::inertia('applications', 'applications/index')->name('applications');
     Route::get('applications/{id}', fn (int $id) => Inertia::render('applications/show', ['id' => $id]))->name('applications.show');
 });

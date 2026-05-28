@@ -3,6 +3,8 @@
 use App\Http\Controllers\ApplicationCommentController;
 use App\Http\Controllers\DailyLogController;
 use App\Http\Controllers\JobApplicationController;
+use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\ReminderSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // All routes are protected — user must be logged in (session based via Inertia)
@@ -52,4 +54,14 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('daily-logs/{id}', [DailyLogController::class, 'deleteDailyLog']);
     Route::delete('daily-logs', [DailyLogController::class, 'deleteAllDailyLogs']);
+
+    // -------------------------------------------------------------------------
+    // Push Subscriptions
+    // -------------------------------------------------------------------------
+
+    Route::post('push-subscriptions', [PushSubscriptionController::class, 'store']);
+    Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy']);
+
+    Route::patch('reminder-settings', [ReminderSettingsController::class, 'update']);
+    Route::post('reminder-settings/test', [ReminderSettingsController::class, 'test']);
 });

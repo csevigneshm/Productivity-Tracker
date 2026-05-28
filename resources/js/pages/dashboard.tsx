@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Briefcase, CheckCircle2, Github, Linkedin, Minus, PenLine, Phone, Plus, Save, TrendingUp, TriangleAlert, X, XCircle } from 'lucide-react';
+import ReminderToggle from '@/components/reminder-toggle';
 import { dashboard } from '@/routes';
 
 const csrfToken = () => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
@@ -206,7 +207,13 @@ function NumInput({ label, value, onChange }: { label: string; value: string; on
 
 // ─── main dashboard ───────────────────────────────────────────────────────────
 
-export default function Dashboard() {
+export default function Dashboard({
+    remindersEnabled,
+    vapidPublicKey,
+}: {
+    remindersEnabled: boolean;
+    vapidPublicKey: string | null;
+}) {
     const { auth } = usePage().props;
 
     // filter state
@@ -416,6 +423,7 @@ export default function Dashboard() {
                         <p className="mt-1 text-sm text-neutral-400 dark:text-neutral-500">{today}</p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <ReminderToggle enabled={remindersEnabled} vapidPublicKey={vapidPublicKey} />
                     </div>
                 </div>
 
